@@ -8,17 +8,17 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated";
-import { COLORS } from "../constants";
 import { BalloonType } from "../types";
 import BalloonRenderer from "./BalloonRenderer";
 type Props = {
   x: number;
   y: number;
   type: BalloonType;
+  color: string;
   onPress: () => void;
 };
 
-export default function Balloon({ x, y, type, onPress }: Props) {
+export default function Balloon({ x, y, type, color, onPress }: Props) {
   const [visible, setVisible] = useState(true);
 
   const sway = useSharedValue(0);
@@ -90,7 +90,7 @@ export default function Balloon({ x, y, type, onPress }: Props) {
       ]}
     >
       <Animated.View style={animatedStyle}>
-        <BalloonRenderer color={COLORS[type].hex} type={type} />
+        <BalloonRenderer type={type} color={color} />
       </Animated.View>
     </Pressable>
   );

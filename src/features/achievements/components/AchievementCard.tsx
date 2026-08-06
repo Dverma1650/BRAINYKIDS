@@ -1,37 +1,29 @@
 import { StyleSheet, Text, View } from "react-native";
 
 type Props = {
-  icon: string;
   title: string;
   description: string;
-  progress: number;
-  target: number;
-  completed: boolean;
+  reward: number;
+  unlocked: boolean;
 };
 
 export default function AchievementCard({
-  icon,
   title,
   description,
-  progress,
-  target,
-  completed,
+  reward,
+  unlocked,
 }: Props) {
   return (
-    <View style={styles.card}>
-      <Text style={styles.icon}>{icon}</Text>
+    <View style={[styles.card, unlocked && styles.unlocked]}>
+      <Text style={styles.icon}>{unlocked ? "🏆" : "🔒"}</Text>
 
       <View style={{ flex: 1 }}>
         <Text style={styles.title}>{title}</Text>
 
-        <Text>{description}</Text>
-
-        <Text>
-          {progress} / {target}
-        </Text>
+        <Text style={styles.description}>{description}</Text>
       </View>
 
-      <Text style={styles.status}>{completed ? "✅" : "🔒"}</Text>
+      <Text style={styles.reward}>🪙 {reward}</Text>
     </View>
   );
 }
@@ -40,24 +32,34 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 18,
-    margin: 10,
-    borderRadius: 16,
     backgroundColor: "#fff",
+    marginVertical: 8,
+    borderRadius: 20,
+    padding: 16,
     elevation: 3,
   },
 
+  unlocked: {
+    backgroundColor: "#DCFCE7",
+  },
+
   icon: {
-    fontSize: 36,
-    marginRight: 16,
+    fontSize: 34,
+    marginRight: 14,
   },
 
   title: {
-    fontSize: 18,
     fontWeight: "700",
+    fontSize: 18,
   },
 
-  status: {
-    fontSize: 24,
+  description: {
+    color: "#666",
+    marginTop: 4,
+  },
+
+  reward: {
+    fontWeight: "700",
+    fontSize: 18,
   },
 });

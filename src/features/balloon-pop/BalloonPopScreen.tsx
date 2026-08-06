@@ -41,20 +41,25 @@ export default function BalloonPopScreen() {
   const [coins, setCoins] = useState(0);
 
   useEffect(() => {
-    GameStorage.getCoins().then(setCoins);
-  }, []);
+    async function initializeGame() {
+      const [coins, bestScore] = await Promise.all([
+        GameStorage.getCoins(),
+        GameStorage.getHighScore(),
+      ]);
 
-  useEffect(() => {
-    (async () => {
-      setBestScore(await GameStorage.getHighScore());
-    })();
-  }, []);
-  useEffect(() => {
-    SoundManager.playBackground();
+      setCoins(coins);
+      setBestScore(bestScore);
+
+      SoundManager.playBackground();
+    }
+
+    initializeGame();
+
     return () => {
       SoundManager.stopBackground();
     };
   }, []);
+
   return (
     <LinearGradient colors={["#8FD3FE", "#FFFFFF"]} style={styles.container}>
       {/* Background */}

@@ -1,4 +1,5 @@
 import { StyleSheet, View } from "react-native";
+
 import { BalloonItem } from "../types";
 import Balloon from "./Balloon";
 
@@ -16,6 +17,7 @@ export default function BalloonField({ balloons, onBalloonPress }: Props) {
           x={balloon.x}
           y={balloon.y}
           type={balloon.type}
+          color={balloon.color} // ✅ Required
           onPress={() => onBalloonPress(balloon)}
         />
       ))}

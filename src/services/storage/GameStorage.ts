@@ -7,9 +7,58 @@ const KEYS = {
 
   OWNED_ITEMS: "OWNED_ITEMS",
   EQUIPPED_BALLOON: "EQUIPPED_BALLOON",
+  LAST_REWARD_DATE: "LAST_REWARD_DATE",
+  CURRENT_DAY: "CURRENT_DAY",
+  MUSIC: "MUSIC",
+  SOUND: "SOUND",
+  VIBRATION: "VIBRATION",
 };
 
 class GameStorage {
+  async getMusicEnabled() {
+    const value = await AsyncStorage.getItem(KEYS.MUSIC);
+    return value !== "false";
+  }
+
+  async setMusicEnabled(value: boolean) {
+    await AsyncStorage.setItem(KEYS.MUSIC, String(value));
+  }
+
+  async getSoundEnabled() {
+    const value = await AsyncStorage.getItem(KEYS.SOUND);
+    return value !== "false";
+  }
+
+  async setSoundEnabled(value: boolean) {
+    await AsyncStorage.setItem(KEYS.SOUND, String(value));
+  }
+
+  async getVibrationEnabled() {
+    const value = await AsyncStorage.getItem(KEYS.VIBRATION);
+    return value !== "false";
+  }
+
+  async setVibrationEnabled(value: boolean) {
+    await AsyncStorage.setItem(KEYS.VIBRATION, String(value));
+  }
+
+  async getRewardDay() {
+    const value = await AsyncStorage.getItem(KEYS.CURRENT_DAY);
+
+    return value ? Number(value) : 1;
+  }
+
+  async setRewardDay(day: number) {
+    await AsyncStorage.setItem(KEYS.CURRENT_DAY, String(day));
+  }
+
+  async getLastRewardDate() {
+    return await AsyncStorage.getItem(KEYS.LAST_REWARD_DATE);
+  }
+
+  async setLastRewardDate(date: string) {
+    await AsyncStorage.setItem(KEYS.LAST_REWARD_DATE, date);
+  }
   // =====================================
   // HIGH SCORE
   // =====================================

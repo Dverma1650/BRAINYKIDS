@@ -1,58 +1,45 @@
 import { useState } from "react";
-import { StyleSheet, Switch, Text, View } from "react-native";
+import { StyleSheet, Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import SettingItem from "./SettingItem";
 
 export default function SettingsScreen() {
   const [music, setMusic] = useState(true);
   const [sound, setSound] = useState(true);
-  const [haptics, setHaptics] = useState(true);
+  const [vibration, setVibration] = useState(true);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>⚙️ Settings</Text>
 
-      <View style={styles.row}>
-        <Text style={styles.label}>🎵 Background Music</Text>
-        <Switch value={music} onValueChange={setMusic} />
-      </View>
+      <SettingItem title="Music" value={music} onValueChange={setMusic} />
 
-      <View style={styles.row}>
-        <Text style={styles.label}>🔊 Sound Effects</Text>
-        <Switch value={sound} onValueChange={setSound} />
-      </View>
+      <SettingItem
+        title="Sound Effects"
+        value={sound}
+        onValueChange={setSound}
+      />
 
-      <View style={styles.row}>
-        <Text style={styles.label}>📳 Haptic Feedback</Text>
-        <Switch value={haptics} onValueChange={setHaptics} />
-      </View>
-    </View>
+      <SettingItem
+        title="Vibration"
+        value={vibration}
+        onValueChange={setVibration}
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F6F8FF",
-    padding: 24,
+    backgroundColor: "#F4F7FB",
+    padding: 20,
   },
 
   title: {
-    fontSize: 34,
-    fontWeight: "700",
-    marginBottom: 40,
-  },
-
-  row: {
-    backgroundColor: "#fff",
-    borderRadius: 18,
-    padding: 18,
-    marginBottom: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  label: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 32,
+    fontWeight: "800",
+    marginBottom: 30,
   },
 });
