@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet } from "react-native";
 import Animated, {
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -22,7 +23,8 @@ export default function FloatingScore({ x, y, value, onFinish }: Props) {
 
     opacity.value = withTiming(0, { duration: 800 }, (finished) => {
       if (finished) {
-        onFinish();
+        // Use runOnJS to call the onFinish function on the JS thread
+        runOnJS(onFinish)();
       }
     });
   }, []);
@@ -31,35 +33,17 @@ export default function FloatingScore({ x, y, value, onFinish }: Props) {
     opacity: opacity.value,
     transform: [{ translateY: translateY.value }],
   }));
-
   const displayValue = typeof value === "number" ? `+${value}` : value;
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        {
-          left: x,
-          top: y,
-        },
-        style,
-      ]}
-    >
-      <Text style={styles.text}>{displayValue}</Text>
-    </Animated.View>
+    <Animated.Text style={[styles.text, style]}>{displayValue}</Animated.Text>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    position: "absolute",
-  },
-
   text: {
-    fontSize: 28,
+    position: "absolute",
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#FFD700",
-    textShadowColor: "#000",
-    textShadowRadius: 6,
   },
 });

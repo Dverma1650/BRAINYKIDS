@@ -1,8 +1,9 @@
+import Card from "@/components/ui/Card";
 import { StyleSheet, Text, View } from "react-native";
 
 import { COLORS } from "../constants";
 import { BalloonColor } from "../types";
-import BalloonSVG from "./BalloonSVG";
+import FloatingBalloon from "./FloatingBalloon";
 
 type Props = {
   target: BalloonColor;
@@ -10,54 +11,94 @@ type Props = {
 
 export default function TargetCard({ target }: Props) {
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>🎯 Mission</Text>
+    <Card style={styles.card}>
+      <View style={styles.header}>
+        <Text style={styles.icon}>🎯</Text>
 
-        <Text style={styles.subtitle}>Pop this balloon</Text>
-
-        <BalloonSVG color={COLORS[target].hex} width={65} height={90} />
+        <Text style={styles.title}>Mission</Text>
       </View>
-    </View>
+
+      <Text style={styles.subtitle}>Pop the</Text>
+
+      <Text
+        style={[
+          styles.targetText,
+          {
+            color: COLORS[target].hex,
+          },
+        ]}
+      >
+        {COLORS[target].label.toUpperCase()} BALLOON
+      </Text>
+
+      <View style={styles.balloon}>
+        <FloatingBalloon type={target} color={COLORS[target].hex} />
+      </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    marginTop: 12,
-    marginBottom: 10,
-  },
-
   card: {
     width: 220,
-    paddingVertical: 14,
+    alignSelf: "center",
+    marginTop: 10,
 
-    borderRadius: 28,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
 
-    backgroundColor: "rgba(255,255,255,0.88)",
+    borderRadius: 24,
+
+    backgroundColor: "rgba(255,255,255,0.92)",
 
     alignItems: "center",
 
     shadowColor: "#000",
     shadowOpacity: 0.12,
     shadowRadius: 12,
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    elevation: 8,
+  },
 
-    elevation: 5,
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+
+  icon: {
+    fontSize: 20,
+    marginRight: 6,
   },
 
   title: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#555",
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#2F3A4F",
   },
 
   subtitle: {
-    marginTop: 6,
-    marginBottom: 6,
+    fontSize: 16,
+    color: "#7A8597",
+    marginTop: 2,
+  },
 
-    fontSize: 15,
+  targetText: {
+    marginTop: 4,
+    fontSize: 20,
+    fontWeight: "700",
+  },
 
-    color: "#777",
+  balloon: {
+    marginTop: -4,
+
+    transform: [
+      {
+        scale: 0.68,
+      },
+    ],
   },
 });

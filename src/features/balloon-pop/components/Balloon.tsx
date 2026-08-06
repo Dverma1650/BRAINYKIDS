@@ -9,13 +9,12 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { COLORS } from "../constants";
-import { BalloonColor } from "../types";
-import BalloonSVG from "./BalloonSVG";
-
+import { BalloonType } from "../types";
+import BalloonRenderer from "./BalloonRenderer";
 type Props = {
   x: number;
   y: number;
-  type: BalloonColor;
+  type: BalloonType;
   onPress: () => void;
 };
 
@@ -91,7 +90,7 @@ export default function Balloon({ x, y, type, onPress }: Props) {
       ]}
     >
       <Animated.View style={animatedStyle}>
-        <BalloonSVG color={COLORS[type].hex} width={90} height={120} />
+        <BalloonRenderer color={COLORS[type].hex} type={type} />
       </Animated.View>
     </Pressable>
   );
@@ -100,10 +99,5 @@ export default function Balloon({ x, y, type, onPress }: Props) {
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-  },
-
-  balloon: {
-    width: 90,
-    height: 120,
   },
 });

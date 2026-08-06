@@ -42,7 +42,9 @@
         }
       ],
       "expo-font",
-      "expo-audio"
+      "expo-audio",
+      "expo-asset",
+      "expo-image"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -4,12 +4,15 @@ const KEYS = {
   HIGH_SCORE: "HIGH_SCORE",
   BEST_LEVEL: "BEST_LEVEL",
   COINS: "COINS",
+
+  OWNED_ITEMS: "OWNED_ITEMS",
+  EQUIPPED_BALLOON: "EQUIPPED_BALLOON",
 };
 
 class GameStorage {
-  // --------------------------
-  // High Score
-  // --------------------------
+  // =====================================
+  // HIGH SCORE
+  // =====================================
 
   async getHighScore(): Promise<number> {
     const value = await AsyncStorage.getItem(KEYS.HIGH_SCORE);
@@ -24,9 +27,9 @@ class GameStorage {
     }
   }
 
-  // --------------------------
-  // Best Level
-  // --------------------------
+  // =====================================
+  // BEST LEVEL
+  // =====================================
 
   async getBestLevel(): Promise<number> {
     const value = await AsyncStorage.getItem(KEYS.BEST_LEVEL);
@@ -41,9 +44,9 @@ class GameStorage {
     }
   }
 
-  // --------------------------
-  // Coins
-  // --------------------------
+  // =====================================
+  // COINS
+  // =====================================
 
   async getCoins(): Promise<number> {
     const value = await AsyncStorage.getItem(KEYS.COINS);
@@ -52,18 +55,66 @@ class GameStorage {
 
   async addCoins(amount: number) {
     const coins = await this.getCoins();
+
     await AsyncStorage.setItem(KEYS.COINS, String(coins + amount));
   }
 
   async spendCoins(amount: number) {
     const coins = await this.getCoins();
 
-    if (coins >= amount) {
-      await AsyncStorage.setItem(KEYS.COINS, String(coins - amount));
-      return true;
+    if (coins < amount) {
+      return false;
     }
 
-    return false;
+    await AsyncStorage.setItem(KEYS.COINS, String(coins - amount));
+
+    return true;
+  }
+
+  // =====================================
+  // OWNED ITEMS
+  // =====================================
+
+  async getOwnedItems(): Promise<string[]> {
+    const value = await AsyncStorage.getItem(KEYS.OWNED_ITEMS);
+
+    if (!value) {
+      return ["classic"];
+    }
+
+    return JSON.parse(value);
+  }
+
+  async unlockItem(id: string) {
+    const owned = await this.getOwnedItems();
+
+    if (!owned.includes(id)) {
+      owned.push(id);
+
+      await AsyncStorage.setItem(KEYS.OWNED_ITEMS, JSON.stringify(owned));
+    }
+  }
+
+  // =====================================
+  // EQUIPPED BALLOON
+  // =====================================
+
+  async getEquippedBalloon(): Promise<string> {
+    const value = await AsyncStorage.getItem(KEYS.EQUIPPED_BALLOON);
+
+    return value ?? "classic";
+  }
+
+  async equipBalloon(id: string) {
+    await AsyncStorage.setItem(KEYS.EQUIPPED_BALLOON, id);
+  }
+
+  // =====================================
+  // RESET
+  // =====================================
+
+  async resetGame() {
+    await AsyncStorage.clear();
   }
 }
 

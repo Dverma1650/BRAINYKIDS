@@ -1,53 +1,46 @@
-import { BALLOON_COLORS, COLORS } from "../constants";
-import { BalloonColor, BalloonItem, BalloonType } from "../types";
+import { BALLOON_COLORS, COLORS, POWER_BALLOON_CHANCE } from "../constants";
+import {
+  BalloonColor,
+  BalloonItem,
+  BalloonType,
+  POWER_BALLOONS,
+} from "../types";
 
-let currentId = 1;
+export function createBalloon(forcedColor?: BalloonColor): BalloonItem {
+  let type: BalloonType;
 
-// Probability of power balloons
-const POWER_BALLOONS: BalloonType[] = ["star", "heart", "clock", "bomb"];
-
-function randomType(): BalloonType {
-  const chance = Math.random();
-
-  // 10% chance of power balloon
-  if (chance < 0.1) {
-    return POWER_BALLOONS[Math.floor(Math.random() * POWER_BALLOONS.length)];
+  if (Math.random() < POWER_BALLOON_CHANCE) {
+    type = POWER_BALLOONS[Math.floor(Math.random() * POWER_BALLOONS.length)];
+  } else {
+    type =
+      forcedColor ??
+      BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)];
   }
 
-  // 90% chance of normal balloon
-  return BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)];
-}
-
-function randomX() {
-  return Math.floor(Math.random() * 260) + 30;
-}
-
-export function createBalloon(forcedType?: BalloonType): BalloonItem {
-  const type = forcedType ?? randomType();
-
   return {
-    id: currentId++,
+    id: Date.now() + Math.random(),
     type,
     color: COLORS[type].hex,
-    speed: Math.random() * 2 + 1.5,
-    x: randomX(),
-    y: 750,
+    x: Math.random() * 320,
+    y: 350 + Math.random() * 500, // New balloons come from bottom
+    speed: 1 + Math.random() * 0.7,
     popped: false,
   };
 }
 
-export function createBalloons(
-  count: number,
-  targetColor: BalloonColor
-): BalloonItem[] {
+function createInitialBalloons(count: number): BalloonItem[] {
   const balloons: BalloonItem[] = [];
 
-  // Always keep one correct balloon
-  balloons.push(createBalloon(targetColor));
+  for (let i = 0; i < count; i++) {
+    const balloon = createBalloon(COLORS[i % COLORS.length]);
 
-  while (balloons.length < count) {
-    balloons.push(createBalloon());
+    balloons.push({
+      ...balloon,
+      x: 20 + Math.random() * 280,
+      y: 120 + (i % 5) * 100 + Math.random() * 30,
+      speed: 3 + Math.random() * 2,
+    });
   }
 
-  return balloons.sort(() => Math.random() - 0.5);
+  return balloons;
 }

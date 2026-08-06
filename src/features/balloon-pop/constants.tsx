@@ -16,6 +16,8 @@ export const BALLOON_COLORS: BalloonColor[] = [
   "yellow",
 ];
 
+export const POWER_BALLOON_CHANCE = 0.08;
+
 export const COLORS: Record<
   BalloonType,
   {
@@ -70,5 +72,28 @@ export const COLORS: Record<
     emoji: "💣",
     hex: "#222222",
     label: "Bomb",
+  },
+  gift: {
+    emoji: "🎁",
+    hex: "#F59E0B",
+    label: "Gift",
+  },
+
+  magnet: {
+    emoji: "🧲",
+    hex: "#EF4444",
+    label: "Magnet",
+  },
+
+  ice: {
+    emoji: "❄️",
+    hex: "#38BDF8",
+    label: "Ice",
+  },
+
+  lightning: {
+    emoji: "⚡",
+    hex: "#FACC15",
+    label: "Lightning",
   },
 };

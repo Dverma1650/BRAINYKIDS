@@ -1,19 +1,21 @@
-import AnimatedSun from "@/components/background/AnimatedSun";
 import Grass from "@/components/background/Grass";
 import Hills from "@/components/background/Hills";
 import MovingCloud from "@/components/background/MovingCloud";
 import SoundManager from "@/services/audio/SoundManager";
 import GameStorage from "@/services/storage/GameStorage";
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import BalloonField from "./components/BalloonField";
 import Burst from "./components/Burst";
 import FloatingScore from "./components/FloatingScore";
-import GameHeader from "./components/GameHeader";
+import GameOverModal from "./components/GameOverModal";
+import GameHeader from "./components/header/GameHeader";
+import LevelCompleteModal from "./components/LevelCompleteModal";
+import PauseModal from "./components/PauseModal";
 import TargetCard from "./components/TargetCard";
 import useBalloonGame from "./hooks/useBalloonGame";
-import GameOverModal from "./components/GameOverModal";
 
 export default function BalloonPopScreen() {
   const {
@@ -30,8 +32,18 @@ export default function BalloonPopScreen() {
     setBursts,
     floatingScores,
     setFloatingScores,
+    paused,
+    setPaused,
+    levelComplete,
+    continueToNextLevel,
   } = useBalloonGame();
   const [bestScore, setBestScore] = useState(0);
+  const [coins, setCoins] = useState(0);
+
+  useEffect(() => {
+    GameStorage.getCoins().then(setCoins);
+  }, []);
+
   useEffect(() => {
     (async () => {
       setBestScore(await GameStorage.getHighScore());
@@ -46,7 +58,7 @@ export default function BalloonPopScreen() {
   return (
     <LinearGradient colors={["#8FD3FE", "#FFFFFF"]} style={styles.container}>
       {/* Background */}
-      <AnimatedSun />
+      {/* <AnimatedSun /> */}
       <MovingCloud top={400} duration={22000} />
       <MovingCloud top={350} duration={34000} size={0.5} />
       <MovingCloud top={200} duration={28000} size={0.8} />
@@ -54,9 +66,17 @@ export default function BalloonPopScreen() {
       <Hills />
       <Grass />
       {/* Header */}
-      <GameHeader score={score} lives={lives} timer={timer} level={level} />
+      <GameHeader
+        coins={coins}
+        score={score}
+        lives={lives}
+        timer={timer}
+        onPause={() => setPaused(true)}
+      />
       {/* Mission */}
-      <TargetCard target={targetColor} />
+      <View style={styles.targetWrapper}>
+        <TargetCard target={targetColor} />
+      </View>
       {/* Balloons */}
       <BalloonField balloons={balloons} onBalloonPress={popBalloon} />
       {/* Burst Effect */}
@@ -83,6 +103,24 @@ export default function BalloonPopScreen() {
           }
         />
       ))}
+      <PauseModal
+        visible={paused}
+        onResume={() => setPaused(false)}
+        onRestart={() => {
+          setPaused(false);
+          restartGame();
+        }}
+        onHome={() => router.replace("/")}
+      />
+      <LevelCompleteModal
+        visible={levelComplete}
+        level={level}
+        coins={20}
+        onContinue={async () => {
+          await continueToNextLevel();
+          setCoins(await GameStorage.getCoins());
+        }}
+      />
       <GameOverModal
         visible={gameOver}
         score={score}
@@ -97,5 +135,18 @@ export default function BalloonPopScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  topBar: {
+    marginTop: 16,
+    marginHorizontal: 20,
+
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  targetWrapper: {
+    marginTop: 16,
+    alignItems: "center",
   },
 });

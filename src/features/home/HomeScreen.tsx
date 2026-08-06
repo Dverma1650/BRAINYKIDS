@@ -1,17 +1,18 @@
-import { FlatList, SafeAreaView, StyleSheet } from "react-native";
+import { FlatList, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import GameCard from "../../components/ui/GameCard";
 import Header from "../../components/ui/Header";
 import StatsCard from "../../components/ui/StatsCard";
 import { GAMES } from "../../constants/games";
 import { Colors } from "../../theme";
-
 export default function HomeScreen() {
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       <FlatList
-        contentContainerStyle={styles.content}
         data={GAMES}
         keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
         ListHeaderComponent={
           <>
             <Header />

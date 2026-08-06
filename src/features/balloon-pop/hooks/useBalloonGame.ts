@@ -6,6 +6,7 @@ import { LEVELS } from "../config/level";
 import { INITIAL_LIVES } from "../constants";
 import { BalloonColor, BalloonItem } from "../types";
 import { createBalloon } from "../utils/balloonGenerator";
+import { getPowerBalloonReward } from "../utils/powerBalloonHandler";
 type Burst = {
   id: number;
   x: number;
@@ -33,6 +34,9 @@ function createInitialBalloons(count: number): BalloonItem[] {
 }
 
 export default function useBalloonGame() {
+  const [paused, setPaused] = useState(false); // User pause
+  const [frozen, setFrozen] = useState(false); // Ice power-up
+  const [levelComplete, setLevelComplete] = useState(false);
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [lives, setLives] = useState(INITIAL_LIVES);
@@ -59,8 +63,7 @@ export default function useBalloonGame() {
 
   // Balloon Movement
   useEffect(() => {
-    if (gameOver) return;
-
+    if (gameOver || paused || frozen) return;
     const interval = setInterval(() => {
       setBalloons((prev) =>
         prev.map((balloon) => {
@@ -80,11 +83,11 @@ export default function useBalloonGame() {
     }, 16);
 
     return () => clearInterval(interval);
-  }, [gameOver, currentLevel]);
+  }, [gameOver, paused, frozen, currentLevel]);
 
   // Timer
   useEffect(() => {
-    if (gameOver) return;
+    if (gameOver || paused || frozen) return;
 
     if (timer <= 0) {
       (async () => {
@@ -105,28 +108,27 @@ export default function useBalloonGame() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timer, gameOver]);
+  }, [timer, gameOver, paused, frozen]);
 
   // Level Up
+  // Level Complete
   useEffect(() => {
-    if (level >= LEVELS.length || score < currentLevel.targetScore) {
-      return;
+    if (levelComplete) return;
+
+    if (level >= LEVELS.length) return;
+
+    if (score >= currentLevel.targetScore) {
+      SoundManager.play("levelUp");
+      HapticManager.success();
+
+      setFrozen(true);
+      setLevelComplete(true);
     }
-    SoundManager.play("levelUp");
-    HapticManager.success();
-    const nextLevel = level + 1;
-    const config = LEVELS[nextLevel - 1];
-
-    setLevel(nextLevel);
-
-    setTimer(config.time);
-
-    setBalloons(createInitialBalloons(config.balloons));
   }, [score]);
 
   function popBalloon(balloon: BalloonItem) {
-    if (gameOver) return;
-
+    if (gameOver || paused) return;
+    // Burst animation
     setBursts((prev) => [
       ...prev,
       {
@@ -137,23 +139,106 @@ export default function useBalloonGame() {
       },
     ]);
 
+    // ====================================================
+    // POWER BALLOONS
+    // ====================================================
+
+    const powerTypes = [
+      "star",
+      "heart",
+      "clock",
+      "bomb",
+      "gift",
+      "magnet",
+      "ice",
+      "lightning",
+    ];
+
+    if (powerTypes.includes(balloon.type)) {
+      const reward = getPowerBalloonReward(balloon.type as any);
+
+      if (reward) {
+        // Score
+        if (reward.score !== 0) {
+          setScore((prev) => Math.max(0, prev + reward.score));
+        }
+
+        // Lives
+        if (reward.lives !== 0) {
+          setLives((prev) =>
+            Math.min(INITIAL_LIVES, Math.max(0, prev + reward.lives))
+          );
+        }
+
+        // Timer
+        if (reward.timer !== 0) {
+          setTimer((prev) => prev + reward.timer);
+        }
+
+        // Floating text
+        setFloatingScores((prev) => [
+          ...prev,
+          {
+            id: Date.now() + Math.random(),
+            x: balloon.x,
+            y: balloon.y,
+            value: reward.floatingText,
+          },
+        ]);
+
+        // Ice Balloon
+        if (balloon.type === "ice") {
+          setFrozen(true);
+
+          setTimeout(() => {
+            setFrozen(false);
+          }, 3000);
+        }
+
+        // Magnet Balloon
+        if (balloon.type === "magnet") {
+          setBalloons((prev) =>
+            prev.map((b) => ({
+              ...b,
+              x: b.x + (180 - b.x) * 0.35,
+            }))
+          );
+        }
+
+        SoundManager.play("pop");
+        HapticManager.success();
+
+        setBalloons((prev) =>
+          prev.map((item) => (item.id === balloon.id ? createBalloon() : item))
+        );
+
+        return;
+      }
+    }
+
+    // ====================================================
+    // NORMAL BALLOONS
+    // ====================================================
+
     if (balloon.type === targetColor) {
       SoundManager.play("pop");
       HapticManager.pop();
+
       const now = Date.now();
 
       let currentCombo = 1;
 
       if (now - lastPopTime <= COMBO_WINDOW) {
         currentCombo = combo + 1;
-      } else {
-        currentCombo = 1;
       }
 
       setCombo(currentCombo);
       setLastPopTime(now);
+
       const earned = currentCombo * 10;
+
       setScore((prev) => prev + earned);
+
       setFloatingScores((prev) => [
         ...prev,
         {
@@ -171,6 +256,9 @@ export default function useBalloonGame() {
     } else {
       SoundManager.play("wrong");
       HapticManager.error();
+
+      setCombo(1);
+
       setFloatingScores((prev) => [
         ...prev,
         {
@@ -180,7 +268,7 @@ export default function useBalloonGame() {
           value: "-1 ❤️",
         },
       ]);
-      setCombo(1);
+
       setLives((prev) => {
         const nextLives = prev - 1;
 
@@ -195,6 +283,7 @@ export default function useBalloonGame() {
           HapticManager.heavy();
 
           setGameOver(true);
+
           return 0;
         }
 
@@ -212,11 +301,36 @@ export default function useBalloonGame() {
     setLevel(1);
     setLives(INITIAL_LIVES);
     setGameOver(false);
+    setPaused(false);
+    setLevelComplete(false);
+    setCombo(1);
+    setLastPopTime(0);
     setTargetColor("red");
     setTimer(LEVELS[0].time);
     setBursts([]);
     setFloatingScores([]);
     setBalloons(createInitialBalloons(LEVELS[0].balloons));
+  }
+  async function continueToNextLevel() {
+    const nextLevel = level + 1;
+    if (nextLevel > LEVELS.length) {
+      setPaused(false);
+      setGameOver(true);
+      return;
+    }
+
+    await GameStorage.addCoins(20);
+
+    const config = LEVELS[nextLevel - 1];
+
+    setLevel(nextLevel);
+    setTimer(config.time);
+    setTargetColor("red");
+    setCombo(1);
+    setLastPopTime(0);
+    setBalloons(createInitialBalloons(config.balloons));
+    setFrozen(false);
+    setLevelComplete(false);
   }
 
   return {
@@ -234,5 +348,11 @@ export default function useBalloonGame() {
     floatingScores,
     setFloatingScores,
     combo,
+    paused,
+    setPaused,
+    levelComplete,
+    continueToNextLevel,
+    frozen,
+    setFrozen,
   };
 }
