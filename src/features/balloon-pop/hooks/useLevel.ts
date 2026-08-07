@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import SoundManager from "@/services/audio/SoundManager";
 import HapticManager from "@/services/haptics/HapticManager";
 import GameStorage from "@/services/storage/GameStorage";
+import SpeechService from "@/services/speech/SpeechService";
 
 type Props = {
   score: number;
@@ -38,6 +39,7 @@ export default function useLevel({
 
       if (enabled) {
         SoundManager.play("levelUp");
+        SpeechService.speakCorrect();
       }
 
       HapticManager.success();

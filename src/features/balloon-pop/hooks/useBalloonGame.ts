@@ -1,7 +1,8 @@
 import SoundManager from "@/services/audio/SoundManager";
 import HapticManager from "@/services/haptics/HapticManager";
+import SpeechService from "@/services/speech/SpeechService";
 import GameStorage from "@/services/storage/GameStorage";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LEVELS } from "../config/level";
 import { INITIAL_LIVES } from "../constants";
 import { BalloonColor, BalloonItem } from "../types";
@@ -11,6 +12,7 @@ import useGameTimer from "./useGameTimer";
 import useLevel from "./useLevel";
 import { usePowerBalloon } from "./usePowerBalloon";
 import useScore from "./useScore";
+
 type Burst = {
   id: number;
   x: number;
@@ -56,6 +58,13 @@ export default function useBalloonGame() {
   const [balloons, setBalloons] = useState<BalloonItem[]>(
     createInitialBalloons(currentLevel.balloons)
   );
+
+  useEffect(() => {
+    if (paused || gameOver || levelComplete) return;
+
+    SpeechService.speakTarget(targetColor);
+  }, [targetColor]);
+
   const { combo, calculateScore, resetCombo, setCombo, setLastPopTime } =
     useScore();
   useBalloonMovement({
@@ -127,6 +136,7 @@ export default function useBalloonGame() {
 
       if (enabled) {
         SoundManager.play("pop");
+        SpeechService.speakCorrect();
       }
 
       HapticManager.success();
@@ -139,6 +149,7 @@ export default function useBalloonGame() {
       const soundEnabled = await GameStorage.getSoundEnabled();
       if (soundEnabled) {
         SoundManager.play("pop");
+        SpeechService.speakCorrect();
       }
       HapticManager.pop();
       const earned = calculateScore();
@@ -159,6 +170,7 @@ export default function useBalloonGame() {
 
       if (soundEnabled) {
         SoundManager.play("wrong");
+        SpeechService.speakWrong(targetColor);
       }
       HapticManager.error();
       resetCombo();
@@ -186,6 +198,7 @@ export default function useBalloonGame() {
         if (soundEnabled) {
           SoundManager.play("gameOver");
         }
+        SpeechService.speakGameOver();
 
         HapticManager.heavy();
         setGameOver(true);
