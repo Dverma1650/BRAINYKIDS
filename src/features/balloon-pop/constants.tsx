@@ -11,9 +11,21 @@ export const BALLOON_SIZE = 80;
 
 export const BALLOON_COLORS: BalloonColor[] = [
   "red",
+  "orange",
+  "yellow",
   "green",
   "blue",
-  "yellow",
+  "indigo",
+  "violet",
+  "purple",
+  "pink",
+  "silver",
+  "gold",
+  "beige",
+  "brown",
+  "grey",
+  "black",
+  "white",
 ];
 
 export const POWER_BALLOON_CHANCE = 0.08;
@@ -26,10 +38,23 @@ export const COLORS: Record<
     label: string;
   }
 > = {
+  // ===== Normal Colors =====
   red: {
     emoji: "🔴",
     hex: "#FF4D4F",
     label: "Red",
+  },
+
+  orange: {
+    emoji: "🟠",
+    hex: "#FF8C42",
+    label: "Orange",
+  },
+
+  yellow: {
+    emoji: "🟡",
+    hex: "#FACC15",
+    label: "Yellow",
   },
 
   green: {
@@ -44,11 +69,73 @@ export const COLORS: Record<
     label: "Blue",
   },
 
-  yellow: {
-    emoji: "🟡",
-    hex: "#FACC15",
-    label: "Yellow",
+  indigo: {
+    emoji: "🔵",
+    hex: "#3F51B5",
+    label: "Indigo",
   },
+
+  violet: {
+    emoji: "🟣",
+    hex: "#7C3AED",
+    label: "Violet",
+  },
+
+  purple: {
+    emoji: "🟪",
+    hex: "#A855F7",
+    label: "Purple",
+  },
+
+  pink: {
+    emoji: "🩷",
+    hex: "#EC4899",
+    label: "Pink",
+  },
+
+  silver: {
+    emoji: "⚪",
+    hex: "#C0C0C0",
+    label: "Silver",
+  },
+
+  gold: {
+    emoji: "🟡",
+    hex: "#FFD700",
+    label: "Gold",
+  },
+
+  beige: {
+    emoji: "🟤",
+    hex: "#F5F5DC",
+    label: "Beige",
+  },
+
+  brown: {
+    emoji: "🤎",
+    hex: "#8B4513",
+    label: "Brown",
+  },
+
+  grey: {
+    emoji: "⚪",
+    hex: "#808080",
+    label: "Grey",
+  },
+
+  black: {
+    emoji: "⚫",
+    hex: "#222222",
+    label: "Black",
+  },
+
+  white: {
+    emoji: "⚪",
+    hex: "#FFFFFF",
+    label: "White",
+  },
+
+  // ===== Power Balloons =====
 
   star: {
     emoji: "⭐",
@@ -73,6 +160,7 @@ export const COLORS: Record<
     hex: "#222222",
     label: "Bomb",
   },
+
   gift: {
     emoji: "🎁",
     hex: "#F59E0B",

@@ -14,7 +14,7 @@ export const SHOP_ITEMS: ShopItem[] = [
     name: "Golden",
     price: 200,
     owned: false,
-    previewColor: "#FACC15",
+    previewColor: "#D4AF37",
   },
 
   {
@@ -22,23 +22,14 @@ export const SHOP_ITEMS: ShopItem[] = [
     name: "Galaxy",
     price: 500,
     owned: false,
-    previewColor: "#6D28D9",
+    previewColor: "#2A4B7C",
   },
-
-  {
-    id: "rainbow",
-    name: "Rainbow",
-    price: 800,
-    owned: false,
-    previewColor: "#EC4899",
-  },
-
   {
     id: "diamond",
     name: "Diamond",
     price: 1200,
     owned: false,
-    previewColor: "#38BDF8",
+    previewColor: "#B9F2FF,",
   },
 
   {
@@ -46,7 +37,7 @@ export const SHOP_ITEMS: ShopItem[] = [
     name: "Fire",
     price: 1500,
     owned: false,
-    previewColor: "#FF5722",
+    previewColor: "#FF5A00",
   },
 
   {
@@ -54,7 +45,7 @@ export const SHOP_ITEMS: ShopItem[] = [
     name: "Ice",
     price: 1800,
     owned: false,
-    previewColor: "#38BDF8",
+    previewColor: "#DBF1FD",
   },
 
   {
@@ -62,6 +53,6 @@ export const SHOP_ITEMS: ShopItem[] = [
     name: "Neon",
     price: 2200,
     owned: false,
-    previewColor: "#A855F7",
+    previewColor: "#39FF14",
   },
 ];

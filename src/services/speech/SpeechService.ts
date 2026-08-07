@@ -12,7 +12,7 @@ class SpeechService {
 
     Speech.speak(text, {
       language: "en-US",
-      pitch: 1.6,
+      pitch: 1.4,
       rate: 0.75,
 
       onDone: () => {
@@ -31,26 +31,32 @@ class SpeechService {
   }
 
   speakTarget(color: string) {
-    this.speak(`Click on the ${color} balloon`);
+    this.speak(`Can you find the ${color} balloon?`);
   }
 
-  speakCorrect() {
-    this.speak("Excellent!");
+  speakCorrect(color?: string) {
+    if (color) {
+      this.speak(`Great job! That's the ${color} balloon!`);
+    } else {
+      this.speak("Great job!");
+    }
   }
 
   speakWrong(color: string) {
-    this.speak(`Oops! That's not ${color}. Try again.`);
+    this.speak(`Oops! Find the ${color} balloon.`);
   }
 
-  speakLevelComplete() {
-    this.speak("Awesome! Level Complete!");
+  speakLevelComplete(level: number) {
+    this.speak(`Fantastic! You finished level ${level}!`);
   }
 
   speakGameOver() {
-    this.speak("Game Over! Great job! Let's play again.");
+    this.speak("Game over. You did an amazing job. Let's play again!");
   }
 
-  
+  speakWelcome() {
+    this.speak("Welcome to Balloon Pop! Let's learn colors together!");
+  }
 }
 
 export default new SpeechService();

@@ -1,19 +1,14 @@
 import { useEffect } from "react";
-
-import { BalloonItem } from "../types";
+import { BalloonColor, BalloonItem } from "../types";
 import { createBalloon } from "../utils/balloonGenerator";
 
 type Props = {
   balloons: BalloonItem[];
-
   speedMultiplier: number;
-
   paused: boolean;
-
   frozen: boolean;
-
   gameOver: boolean;
-
+  availableColors: BalloonColor[];
   setBalloons: React.Dispatch<React.SetStateAction<BalloonItem[]>>;
 };
 
@@ -22,6 +17,7 @@ export default function useBalloonMovement({
   paused,
   frozen,
   gameOver,
+  availableColors,
   setBalloons,
 }: Props) {
   useEffect(() => {
@@ -37,7 +33,12 @@ export default function useBalloonMovement({
           const nextY = balloon.y - balloon.speed * speedMultiplier;
 
           if (nextY < -120) {
-            return createBalloon();
+            const randomColor =
+              availableColors[
+                Math.floor(Math.random() * availableColors.length)
+              ];
+
+            return createBalloon(randomColor);
           }
 
           return {

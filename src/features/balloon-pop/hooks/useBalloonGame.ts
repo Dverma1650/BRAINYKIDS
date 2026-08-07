@@ -3,6 +3,7 @@ import HapticManager from "@/services/haptics/HapticManager";
 import SpeechService from "@/services/speech/SpeechService";
 import GameStorage from "@/services/storage/GameStorage";
 import { useEffect, useMemo, useState } from "react";
+import { COLOR_LEVELS } from "../config/colorLevels";
 import { LEVELS } from "../config/level";
 import { INITIAL_LIVES } from "../constants";
 import { BalloonColor, BalloonItem } from "../types";
@@ -27,16 +28,16 @@ type FloatingScore = {
   value: string;
 };
 
-const COLORS: BalloonColor[] = ["red", "green", "blue", "yellow"];
+function createInitialBalloons(
+  count: number,
+  colors: BalloonColor[],
+  level: number
+): BalloonItem[] {
+  return Array.from({ length: count }, () => {
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
-function createInitialBalloons(count: number): BalloonItem[] {
-  const balloons: BalloonItem[] = [];
-
-  for (let i = 0; i < count; i++) {
-    balloons.push(createBalloon(COLORS[i % COLORS.length]));
-  }
-
-  return balloons;
+    return createBalloon(level, randomColor);
+  });
 }
 
 export default function useBalloonGame() {
@@ -51,12 +52,28 @@ export default function useBalloonGame() {
     () => LEVELS[Math.min(level - 1, LEVELS.length - 1)],
     [level]
   );
+  const availableColors = useMemo(
+    () => COLOR_LEVELS[Math.min(level - 1, COLOR_LEVELS.length - 1)],
+    [level]
+  );
+  function getNextTarget(current: BalloonColor): BalloonColor {
+    let next = current;
+
+    while (next === current) {
+      next =
+        availableColors[Math.floor(Math.random() * availableColors.length)];
+    }
+
+    return next;
+  }
   const [timer, setTimer] = useState(currentLevel.time);
-  const [targetColor, setTargetColor] = useState<BalloonColor>("red");
+  const [targetColor, setTargetColor] = useState<BalloonColor>(
+    COLOR_LEVELS[0][0]
+  );
   const [bursts, setBursts] = useState<Burst[]>([]);
   const [floatingScores, setFloatingScores] = useState<FloatingScore[]>([]);
   const [balloons, setBalloons] = useState<BalloonItem[]>(
-    createInitialBalloons(currentLevel.balloons)
+    createInitialBalloons(currentLevel.balloons, availableColors, level)
   );
 
   useEffect(() => {
@@ -73,6 +90,7 @@ export default function useBalloonGame() {
     frozen,
     gameOver,
     balloons,
+    availableColors,
     setBalloons,
   });
 
@@ -100,6 +118,7 @@ export default function useBalloonGame() {
   });
 
   useLevel({
+    level,
     score,
     targetScore: currentLevel.targetScore,
     levelComplete,
@@ -136,7 +155,7 @@ export default function useBalloonGame() {
 
       if (enabled) {
         SoundManager.play("pop");
-        SpeechService.speakCorrect();
+        SpeechService.speakCorrect(targetColor);
       }
 
       HapticManager.success();
@@ -146,25 +165,24 @@ export default function useBalloonGame() {
 
     // NORMAL BALLOONS
     if (balloon.type === targetColor) {
-      const soundEnabled = await GameStorage.getSoundEnabled();
-      if (soundEnabled) {
-        SoundManager.play("pop");
-        SpeechService.speakCorrect();
-      }
-      HapticManager.pop();
-      const earned = calculateScore();
-      setScore((prev) => prev + earned);
-      setFloatingScores((prev) => [
-        ...prev,
-        {
-          id: Date.now() + Math.random(),
-          x: balloon.x,
-          y: balloon.y,
-          value: combo > 1 ? `🔥 x${combo} +${earned}` : `+${earned}`,
-        },
-      ]);
-      const random = COLORS[Math.floor(Math.random() * COLORS.length)];
-      setTargetColor(random);
+      // Replace popped balloon with a new one
+      const replacementColor =
+        availableColors[Math.floor(Math.random() * availableColors.length)];
+
+      setBalloons((prev) =>
+        prev.map((item) =>
+          item.id === balloon.id ? createBalloon(level, replacementColor) : item
+        )
+      );
+      // Increment the score
+      setScore((prevScore) => prevScore + 1);
+      // Change mission to a different color
+      const nextTarget = getNextTarget(targetColor);
+
+      setTargetColor(nextTarget);
+
+      // Speak the new mission immediately
+      SpeechService.speakTarget(nextTarget);
     } else {
       const soundEnabled = await GameStorage.getSoundEnabled();
 
@@ -206,10 +224,6 @@ export default function useBalloonGame() {
         setLives(nextLives);
       }
     }
-
-    setBalloons((prev) =>
-      prev.map((item) => (item.id === balloon.id ? createBalloon() : item))
-    );
   }
 
   function restartGame() {
@@ -221,11 +235,11 @@ export default function useBalloonGame() {
     setLevelComplete(false);
     resetCombo();
     setLastPopTime(0);
-    setTargetColor("red");
+    setTargetColor(COLOR_LEVELS[0][0]);
     setTimer(LEVELS[0].time);
     setBursts([]);
     setFloatingScores([]);
-    setBalloons(createInitialBalloons(LEVELS[0].balloons));
+    setBalloons(createInitialBalloons(LEVELS[0].balloons, COLOR_LEVELS[0], 1));
   }
   async function continueToNextLevel() {
     const nextLevel = level + 1;
@@ -239,9 +253,21 @@ export default function useBalloonGame() {
     setLevel(nextLevel);
     setTimer(config.time);
     setTargetColor("red");
+    const nextColors =
+      COLOR_LEVELS[Math.min(nextLevel - 1, COLOR_LEVELS.length - 1)];
+
+    setTargetColor(nextColors[Math.floor(Math.random() * nextColors.length)]);
     resetCombo();
     setLastPopTime(0);
-    setBalloons(createInitialBalloons(config.balloons));
+    setBalloons(
+      createInitialBalloons(
+        config.balloons,
+        COLOR_LEVELS[
+          Math.min(nextLevel - 1, COLOR_LEVELS.length - 1, nextLevel)
+        ],
+        nextLevel
+      )
+    );
     setFrozen(false);
     setLevelComplete(false);
   }

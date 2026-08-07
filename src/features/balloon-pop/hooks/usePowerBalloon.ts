@@ -1,3 +1,4 @@
+import { LEVELS } from "../config/level";
 import { INITIAL_LIVES } from "../constants";
 import { BalloonItem } from "../types";
 import { createBalloon } from "../utils/balloonGenerator";
@@ -71,7 +72,9 @@ export async function usePowerBalloon({
   }
 
   setBalloons((prev) =>
-    prev.map((item) => (item.id === balloon.id ? createBalloon() : item))
+    prev.map((item) =>
+      item.id === balloon.id ? createBalloon(LEVELS[0].level) : item
+    )
   );
 
   return true;
